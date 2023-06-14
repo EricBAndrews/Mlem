@@ -16,7 +16,7 @@ struct DownvoteButton: View {
             .foregroundColor(vote == .downvote ? .white : .primary)
             .background(RoundedRectangle(cornerRadius: 2)
                 .aspectRatio(1, contentMode: .fit)
-                .foregroundColor(vote == .downvote ? .downvoteColor : .white))
+                .foregroundColor(vote == .downvote ? .downvoteColor : .transparent))
     }
 }
 

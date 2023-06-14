@@ -19,7 +19,6 @@ enum RatingFailure: Error {
 
 @MainActor
 func ratePost(
-    // post: APIPost,
     postId: Int,
     operation: ScoringOperation,
     account: SavedAccount,
@@ -36,7 +35,6 @@ func ratePost(
         
         let response = try await APIClient().perform(request: request)
         
-        // guard let indexToReplace = postTracker.posts.firstIndex(where: { $0.post.id == post.id }) else {
         guard let indexToReplace = postTracker.posts.firstIndex(where: { $0.post.id == postId }) else {
             // shouldn't happen, but safer than force unwrapping
             return
