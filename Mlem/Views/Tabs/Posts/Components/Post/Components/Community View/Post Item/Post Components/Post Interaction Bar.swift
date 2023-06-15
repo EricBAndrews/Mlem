@@ -39,6 +39,9 @@ struct PostInteractionBar: View {
     let compact: Bool
     let voteOnPost: (ScoringOperation) async -> Void
     
+    // computed
+    var publishedAgo: String { getTimeIntervalFromNow(date: postView.post.published )}
+    
     init(post: APIPostView, account: SavedAccount, compact: Bool, voteOnPost: @escaping (ScoringOperation) async -> Void) {
         self.postView = post
         self.account = account
@@ -51,34 +54,32 @@ struct PostInteractionBar: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 8) {
-                VoteComplex(vote: displayedVote, score: displayedScore, upvote: upvote, downvote: downvote)
-                    .padding(.trailing, 8)
-                SaveButton(saved: false)
-                    .onTapGesture {
-                        Task(priority: .userInitiated) {
-                            await savePost()
-                        }
-                        // ==== TEMPORARY ==== //
-                        isPresentingAlert = true
+        HStack(spacing: 8) {
+            VoteComplex(vote: displayedVote, score: displayedScore, upvote: upvote, downvote: downvote)
+                .padding(.trailing, 8)
+            
+            SaveButton(saved: false)
+                .onTapGesture {
+                    Task(priority: .userInitiated) {
+                        await savePost()
                     }
-                    .alert("That feature isn't implemented yet!",
-                           isPresented: $isPresentingAlert) {
-                    }
-                // ==== END TEMPORARY ==== //
-                ReplyButton()
-                    .onTapGesture {
-                        // ==== TEMPORARY ==== //
-                        isPresentingAlert = true
-                    }
-                    .alert("That feature isn't implemented yet!",
-                           isPresented: $isPresentingAlert) {
-                    }
-                // ==== END TEMPORARY ==== //
-                Spacer()
-                infoBlock
-            }
+                    // ==== TEMPORARY ==== //
+                    isPresentingAlert = true
+                }
+                .alert("That feature isn't implemented yet!",
+                       isPresented: $isPresentingAlert) {}
+            // ==== END TEMPORARY ==== //
+            ReplyButton()
+                .onTapGesture {
+                    // ==== TEMPORARY ==== //
+                    isPresentingAlert = true
+                }
+                .alert("That feature isn't implemented yet!",
+                       isPresented: $isPresentingAlert) {
+                }
+            // ==== END TEMPORARY ==== //
+            Spacer()
+            infoBlock
         }
         .dynamicTypeSize(compact ? .small : .medium)
     }
@@ -90,7 +91,7 @@ struct PostInteractionBar: View {
         HStack(spacing: 8) {
             HStack(spacing: iconToTextSpacing) {
                 Image(systemName: "clock")
-                Text(getTimeIntervalFromNow(date: postView.post.published))
+                Text(publishedAgo)
             }
             HStack(spacing: iconToTextSpacing) {
                 Image(systemName: "bubble.left")

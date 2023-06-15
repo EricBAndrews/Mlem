@@ -169,7 +169,6 @@
 		CD04D5DF2A361585008EF95B /* Empty Button Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD04D5DE2A361585008EF95B /* Empty Button Style.swift */; };
 		CD04D5E52A362AD3008EF95B /* Post Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD04D5E42A362AD3008EF95B /* Post Header.swift */; };
 		CD04D5E72A3636FB008EF95B /* Compact Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD04D5E62A3636FB008EF95B /* Compact Post.swift */; };
-		CD6483282A38B23000EE6CA3 /* APISite.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD6483272A38B23000EE6CA3 /* APISite.swift */; };
 		CD64832A2A38C69600EE6CA3 /* Vote Complex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD6483292A38C69600EE6CA3 /* Vote Complex.swift */; };
 		CD64832D2A38CE4E00EE6CA3 /* Vote Complex Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD64832C2A38CE4E00EE6CA3 /* Vote Complex Style.swift */; };
 		CD6483302A38D31C00EE6CA3 /* Standard Vote Complex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD64832F2A38D31C00EE6CA3 /* Standard Vote Complex.swift */; };
@@ -359,7 +358,6 @@
 		CD04D5DE2A361585008EF95B /* Empty Button Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Empty Button Style.swift"; sourceTree = "<group>"; };
 		CD04D5E42A362AD3008EF95B /* Post Header.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Post Header.swift"; sourceTree = "<group>"; };
 		CD04D5E62A3636FB008EF95B /* Compact Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Compact Post.swift"; sourceTree = "<group>"; };
-		CD6483272A38B23000EE6CA3 /* APISite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APISite.swift; sourceTree = "<group>"; };
 		CD6483292A38C69600EE6CA3 /* Vote Complex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vote Complex.swift"; sourceTree = "<group>"; };
 		CD64832C2A38CE4E00EE6CA3 /* Vote Complex Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vote Complex Style.swift"; sourceTree = "<group>"; };
 		CD64832F2A38D31C00EE6CA3 /* Standard Vote Complex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Standard Vote Complex.swift"; sourceTree = "<group>"; };
@@ -442,18 +440,16 @@
 			path = Participating;
 			sourceTree = "<group>";
 		};
-		6318DE5227FB956D00CC2AD6 /* Components */ = {
+		6318DE5227FB956D00CC2AD6 /* Post Components */ = {
 			isa = PBXGroup;
 			children = (
 				6318DE5327FB958800CC2AD6 /* Stickied Tag.swift */,
 				CD04D5D62A3614A8008EF95B /* Post Interaction Bar.swift */,
-				CD04D5D82A3614BE008EF95B /* Large Post.swift */,
 				CD04D5E42A362AD3008EF95B /* Post Header.swift */,
-				CD04D5E62A3636FB008EF95B /* Compact Post.swift */,
 				CD6483372A3A0F2200EE6CA3 /* NSFW Tag.swift */,
 				CD6483392A3A6E4800EE6CA3 /* Text Display.swift */,
 			);
-			path = Components;
+			path = "Post Components";
 			sourceTree = "<group>";
 		};
 		6318EDC427EE4E0500BFCAE8 /* Models */ = {
@@ -582,7 +578,8 @@
 		6332FDD527F081170009A98A /* Post Item */ = {
 			isa = PBXGroup;
 			children = (
-				6318DE5227FB956D00CC2AD6 /* Components */,
+				CD2E18272A3B695D00224F8A /* Post Types */,
+				6318DE5227FB956D00CC2AD6 /* Post Components */,
 				6318EDC227EE4D7F00BFCAE8 /* Feed Post.swift */,
 				6363D60327EE20A200E34822 /* Expanded Post.swift */,
 			);
@@ -1037,6 +1034,15 @@
 			path = "File Management";
 			sourceTree = "<group>";
 		};
+		CD2E18272A3B695D00224F8A /* Post Types */ = {
+			isa = PBXGroup;
+			children = (
+				CD04D5D82A3614BE008EF95B /* Large Post.swift */,
+				CD04D5E62A3636FB008EF95B /* Compact Post.swift */,
+			);
+			path = "Post Types";
+			sourceTree = "<group>";
+		};
 		CD64832B2A38CE4200EE6CA3 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -1277,11 +1283,9 @@
 				637218572A3A2AAD008C4816 /* APISiteView.swift in Sources */,
 				63AF452D2A2F37EB00E0266F /* Own Account Tracker.swift in Sources */,
 				63344C562A07D81D001BC616 /* Array - Prepend.swift in Sources */,
-				503085D42A2FCCCE00DB2017 /* APIClient.swift in Sources */,
 				CD04D5D92A3614BE008EF95B /* Large Post.swift in Sources */,
 				CD64832A2A38C69600EE6CA3 /* Vote Complex.swift in Sources */,
 				63F0C7BB2A058CB700A18C5D /* URLSessionWebSocketTask - Send Ping.swift in Sources */,
-				503086022A32A8F200DB2017 /* APIPost.swift in Sources */,
 				6363D60427EE20A200E34822 /* Expanded Post.swift in Sources */,
 				CD04D5DF2A361585008EF95B /* Empty Button Style.swift in Sources */,
 				6363D60227EE1EC400E34822 /* Comment Item.swift in Sources */,
@@ -1311,7 +1315,6 @@
 				637218432A3A2AAD008C4816 /* APIClient.swift in Sources */,
 				63DF71F12A02999C002AC14E /* App Constants.swift in Sources */,
 				638535712A1779BC00815781 /* General.swift in Sources */,
-				6317ABBF2A37227400603D76 /* CreateCommentRequest.swift in Sources */,
 				CD6483362A39F20800EE6CA3 /* Post Type.swift in Sources */,
 				6307378D2A1CEB7C00039852 /* My Vote.swift in Sources */,
 				CD04D5E52A362AD3008EF95B /* Post Header.swift in Sources */,
