@@ -66,7 +66,7 @@ struct LargePost: View {
                 EmptyView()
             }
             
-            PostInteractionBar(post: postView, account: account, compact: false, voteOnPost: voteOnPost)
+            PostInteractionBar(postView: postView, account: account, compact: false, voteOnPost: voteOnPost)
         }
         .padding(.vertical, spacing)
         .padding(.horizontal, spacing)
