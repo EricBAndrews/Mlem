@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwipeActions
 
 struct CommunityView: View
 {
@@ -173,8 +174,7 @@ struct CommunityView: View
                     isRefreshing = false
                 }
             }
-            .task(priority: .userInitiated)
-            {
+            .task(priority: .userInitiated) {
                 if postTracker.posts.isEmpty
                 {
                     print("Post tracker is empty")
@@ -438,31 +438,34 @@ struct CommunityView: View
         }
     }
 
-    private var postListView: some View {
+    private var postListView: some View {        
         ForEach(filteredPosts) { post in
-            NavigationLink(destination: ExpandedPost(
-                account: account,
-                post: post,
-                feedType: $feedType
-            ).environmentObject(postTracker) // make postTracker available in expanded post
-            )
-            {
-                FeedPost(
-                    postView: post,
+            VStack(spacing: 0) {
+                NavigationLink(destination: ExpandedPost(
                     account: account,
+                    post: post,
                     feedType: $feedType
-                )
-            }
-            .buttonStyle(EmptyButtonStyle()) // Make it so that the link doesn't mess with the styling
-            .task {
-                if post == postTracker.posts.last {
-                    if postTracker.posts.isEmpty {
-                        postTracker.isLoading = true
-                    }
-
-                    await loadFeed()
-                    postTracker.isLoading = false
+                ).environmentObject(postTracker) // make postTracker available in expanded post
+                ) {
+                    FeedPost(
+                        postView: post,
+                        account: account,
+                        feedType: $feedType
+                    )
                 }
+                .buttonStyle(EmptyButtonStyle()) // Make it so that the link doesn't mess with the styling
+                .task {
+                    if post == postTracker.posts.last {
+                        if postTracker.posts.isEmpty {
+                            postTracker.isLoading = true
+                        }
+
+                        await loadFeed()
+                        postTracker.isLoading = false
+                    }
+                }
+                
+                Divider()
             }
         }
     }
