@@ -196,6 +196,7 @@ struct FeedPost: View
             
             TextField("Reply to post", text: $replyContents, prompt: Text("\(account.username):"), axis: .vertical)
                 .presentationDetents([.medium])
+                .markdownTheme(.mlem)
             
             Spacer()
         }
