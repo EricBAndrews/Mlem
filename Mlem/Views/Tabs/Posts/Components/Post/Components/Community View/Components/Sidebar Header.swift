@@ -55,7 +55,8 @@ struct CommunitySidebarHeader: View {
                             if let label = label2 {
                                 CommunitySidebarHeaderLabel(label)
                             }
-                        }.frame(width: .infinity, height: 16)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 16, maxHeight: 16)
                         Spacer().frame(height: 20)
 
                         Text(title)
