@@ -67,3 +67,44 @@ func rateComment(
         throw RatingFailure.failedToPostScore
     }
 }
+
+@MainActor
+func rateCommentReply(
+    comment: APICommentReplyView,
+    operation: ScoringOperation,
+    account: SavedAccount,
+    commentTracker: FeedTracker<APICommentReplyView>,
+    appState: AppState
+) async throws {
+    do {
+        let request = CreateCommentLikeRequest(
+            account: account,
+            commentId: comment.comment.id,
+            score: operation
+        )
+
+        AppConstants.hapticManager.notificationOccurred(.success)
+        let response = try await APIClient().perform(request: request)
+        
+        // do this because it's the same call as to rate a comment but the tracker needs an APICommentReplyView
+        let updatedCommentReplyView = APICommentReplyView(commentReply: comment.commentReply,
+                                                          comment: response.commentView.comment,
+                                                          creator: comment.creator,
+                                                          post: comment.post,
+                                                          community: comment.community,
+                                                          recipient: comment.recipient,
+                                                          counts: comment.counts,
+                                                          creatorBannedFromCommunity: comment.creatorBannedFromCommunity,
+                                                          subscribed: comment.subscribed,
+                                                          saved: comment.saved,
+                                                          creatorBlocked: comment.creatorBlocked,
+                                                          myVote: comment.myVote)
+        
+        commentTracker.update(with: updatedCommentReplyView)
+        // return updatedComment
+    } catch let ratingOperationError {
+        AppConstants.hapticManager.notificationOccurred(.error)
+        print("Failed while trying to score: \(ratingOperationError)")
+        throw RatingFailure.failedToPostScore
+    }
+}

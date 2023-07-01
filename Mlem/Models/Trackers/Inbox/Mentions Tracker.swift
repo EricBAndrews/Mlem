@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-class MentionsTracker: FeedTracker<APIPersonMentionView>, InboxTracker {
+class MentionsTracker: FeedTracker<APIPersonMentionView> {
     func loadNextPage(account: SavedAccount) async throws {
         try await perform(
             GetPersonMentionsRequest(

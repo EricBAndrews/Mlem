@@ -20,7 +20,7 @@ protocol PublishedDateProviding {
 }
 
 /// A protocol describing an item that can be understood by a `FeedTracker`
-protocol FeedTrackerItem: Decodable, PublishedDateProviding {
+protocol FeedTrackerItem: Identifiable, Decodable, PublishedDateProviding {
     associatedtype UniqueIdentifier: Hashable
     var uniqueIdentifier: UniqueIdentifier { get }
 }

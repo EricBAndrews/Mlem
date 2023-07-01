@@ -17,25 +17,20 @@ struct InboxView: View {
     let account: SavedAccount
     @State var lastKnownAccountId: Int = 0 // id of the last account loaded with
     
+    @State var allItems: [InboxItem] = .init()
+    @StateObject var repliesTracker: RepliesTracker = .init()
+    @StateObject var mentionsTracker: MentionsTracker = .init()
+    @StateObject var messagesTracker: MessagesTracker = .init()
+    
     @State var errorOccurred: Bool = false
     @State var errorMessage: String = ""
     
-    @State var isLoading: Bool = true
-    @State var allItems: [InboxItem] = .init()
-    
-    @StateObject var mentionsTracker: MentionsTracker = .init()
-    @StateObject var messagesTracker: MessagesTracker = .init()
-    @StateObject var repliesTracker: RepliesTracker = .init()
-    
-    // TODO: this jank needs to go, but that's a heavy lift. Currently using the trackers directly in the sub-views breaks scrolling in those views because parent state updates rerender them while loadNextPage calls are in-flight. 
-    @State var allMentions: [APIPersonMentionView] = .init()
-    @State var allMessages: [APIPrivateMessageView] = .init()
-    @State var allReplies: [APICommentReplyView] = .init()
-    
-    // TODO: make private again
-    @State var selectionSection = 0
+    @State private var selectionSection = 0
     
     @State private var navigationPath = NavigationPath()
+    
+    // computed
+    @State var allItemsIsLoading: Bool = false
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -50,55 +45,92 @@ struct InboxView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 
-                ScrollView(showsIndicators: false) {
-                    if errorOccurred {
-                        errorView()
-                    } else {
-                        inboxFeedView()
-                        // TODO: re-enable this
-//                        Group {
-//                            switch selectionSection {
-//                            case 0:
-//                                inboxFeedView()
-//                            case 1:
-//                                repliesFeedView()
-//                            case 2:
-//                                mentionsFeedView()
-//                            case 3:
-//                                messagesFeedView()
-//                            default:
-//                                Text("how did we get here?")
-//                            }
+                // These *all* have to get their *own* special little ScrollViews because:
+                // - if they share one, it won't reset position to top on tab switch (even with ScrollViewReader, idk why)
+                // - if I put it in Inbox Item Feed View, it can't get access to the error (unless I pass *that* in, too, at which point... why bother?
+                // moreover, I can't just give them a tracker to bundle items and isLoading, because the all items view is based on an aggregation of trackers
+                //
+                // I hate it here
+                //
+                switch selectionSection {
+                case 0:
+                    ScrollView {
+//                        if errorOccurred {
+//                            errorView()
+//                        } else {
+                            InboxItemFeedView<InboxItem, InboxItemView>(account: account,
+                                                                        buildItemView: buildInboxItem,
+                                                                        items: allItems)
+                                                                        // isLoading: allItemsIsLoading)
+                        }
+                   // }
+                    .refreshable {
+                        await refreshFeed(selectionSection: selectionSection)
+                    }
+                case 1:
+                    ScrollView {
+//                        if errorOccurred {
+//                            errorView()
+//                        } else {
+                            InboxItemFeedView<APICommentReplyView, InboxReplyView>(account: account,
+                                                                                   buildItemView: buildInboxReply,
+                                                                                   items: repliesTracker.items)
+                                                                                   // isLoading: repliesTracker.isLoading)
+                        // }
+                    }
+                    .refreshable {
+                        await refreshFeed(selectionSection: selectionSection)
+                    }
+                case 2:
+                    ScrollView {
+//                        if errorOccurred {
+//                            errorView()
+//                        } else {
+                            InboxItemFeedView<APIPersonMentionView, InboxMentionView>(account: account,
+                                                                                      buildItemView: buildInboxMention,
+                                                                                      items: mentionsTracker.items)
+                                                                                      // isLoading: mentionsTracker.isLoading)
 //                        }
                     }
-                }
-                .refreshable {
-                    Task(priority: .userInitiated) {
-                        await refreshFeed()
+                    .refreshable {
+                        await refreshFeed(selectionSection: selectionSection)
                     }
+                case 3:
+                    ScrollView {
+//                        if errorOccurred {
+//                            errorView()
+//                        } else {
+                            InboxItemFeedView<APIPrivateMessageView, InboxMessageView>(account: account,
+                                                                                       buildItemView: buildInboxMessage,
+                                                                                       items: messagesTracker.items)
+                                                                                       // isLoading: messagesTracker.isLoading)
+//                        }
+                    }
+                    .refreshable {
+                        await refreshFeed(selectionSection: selectionSection)
+                    }
+                default:
+                    Text("how did we get here?")
                 }
-                
-                Spacer()
             }
-            // load view if empty or account has changed
-            .task(priority: .userInitiated) {
-                // if a tracker is empty or the account has changed, refresh
-                if mentionsTracker.items.isEmpty ||
-                    messagesTracker.items.isEmpty ||
-                    repliesTracker.items.isEmpty  ||
-                    lastKnownAccountId != account.id {
-                    print("Inbox tracker is empty")
-                    await refreshFeed()
-                } else {
-                    print("Inbox tracker is not empty")
-                }
+            
+            Spacer()
+        }
+        // load trackers if empty or account changed
+        .task(priority: .userInitiated) {
+            print("performing initial load")
+            if repliesTracker.items.isEmpty ||
+                mentionsTracker.items.isEmpty ||
+                messagesTracker.items.isEmpty ||
+                lastKnownAccountId != account.id {
+                await refreshFeed(selectionSection: 0)
                 lastKnownAccountId = account.id
             }
-            .navigationTitle("Inbox")
-            .navigationBarTitleDisplayMode(.inline)
-            .listStyle(PlainListStyle())
-            .handleLemmyViews(navigationPath: $navigationPath)
         }
+        .navigationTitle("Inbox")
+        .navigationBarTitleDisplayMode(.inline)
+        .listStyle(PlainListStyle())
+        .handleLemmyViews(navigationPath: $navigationPath)
     }
     
     @ViewBuilder
@@ -113,5 +145,25 @@ struct InboxView: View {
         }
         .multilineTextAlignment(.center)
         .foregroundColor(.secondary)
+    }
+    
+    @ViewBuilder func buildInboxItem(account: SavedAccount, item: InboxItem) -> InboxItemView {
+        InboxItemView(repliesTracker: repliesTracker,
+                      mentionsTracker: mentionsTracker,
+                      messagesTracker: messagesTracker,
+                      account: account,
+                      item: item)
+    }
+    
+    @ViewBuilder func buildInboxReply(account: SavedAccount, reply: APICommentReplyView) -> InboxReplyView {
+        InboxReplyView(account: account, reply: reply, tracker: repliesTracker)
+    }
+    
+    @ViewBuilder func buildInboxMention(account: SavedAccount, mention: APIPersonMentionView) -> InboxMentionView {
+        InboxMentionView(account: account, mention: mention, tracker: mentionsTracker)
+    }
+    
+    @ViewBuilder func buildInboxMessage(account: SavedAccount, message: APIPrivateMessageView) -> InboxMessageView {
+        InboxMessageView(account: account, message: message, tracker: messagesTracker)
     }
 }

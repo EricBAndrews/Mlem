@@ -10,22 +10,31 @@ import SwiftUI
 // /user/replies
 
 struct InboxReplyView: View {
+    @EnvironmentObject var appState: AppState
+    
     let spacing: CGFloat = 10
     let userAvatarWidth: CGFloat = 30
     
     let account: SavedAccount
     let reply: APICommentReplyView
+    let tracker: RepliesTracker
+    
     let publishedAgo: String
     
-    init(account: SavedAccount, reply: APICommentReplyView) {
+    init(account: SavedAccount, reply: APICommentReplyView, tracker: RepliesTracker) {
         self.account = account
         self.reply = reply
+        self.tracker = tracker
         
         self.publishedAgo = getTimeIntervalFromNow(date: reply.commentReply.published)
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: spacing) {
+//            if reply.myVote == .upvote {
+//                Text("UPVOTED")
+//            }
+            
             Text(reply.post.name)
                 .font(.headline)
                 .padding(.bottom, spacing)
@@ -57,6 +66,30 @@ struct InboxReplyView: View {
                 .foregroundColor(.secondary)
             }
         }
+//        .task {
+//            if tracker.shouldLoadContent(after: reply) {
+//                do {
+//                    try await tracker.loadNextPage(account: account)
+//                } catch let message {
+//                    print(message)
+//                }
+//            }
+//        }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    func voteOnComment(inputOp: ScoringOperation) async {
+        do {
+            let operation = reply.myVote == inputOp ? ScoringOperation.resetVote : inputOp
+            try await _ = rateCommentReply(
+                comment: reply,
+                operation: operation,
+                account: account,
+                commentTracker: tracker,
+                appState: appState
+            )
+        } catch {
+            print("failed to vote!")
+        }
     }
 }

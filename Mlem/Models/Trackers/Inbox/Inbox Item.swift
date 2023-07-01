@@ -11,7 +11,7 @@ import SwiftUI
 /**
  Protocol for items in the inbox to allow a unified, sorted feed
  */
-struct InboxItem: Identifiable {
+struct InboxItem: Identifiable, FeedItem {
     let published: Date
     let id: Int
     let type: InboxItemType

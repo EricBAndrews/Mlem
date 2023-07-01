@@ -50,9 +50,7 @@ class FeedTracker<Item: FeedTrackerItem>: ObservableObject {
     @discardableResult func perform<Request: APIRequest>(
         _ request: Request
     ) async throws -> Request.Response where Request.Response: FeedTrackerItemProviding, Request.Response.Item == Item {
-        print("performing...")
         let response = try await retrieveItems(with: request)
-        print("got response")
         
         add(response.items)
         page += 1
@@ -104,6 +102,10 @@ class FeedTracker<Item: FeedTrackerItem>: ObservableObject {
         items[index] = updatedItem
     }
     
+//    func loadNextPage(account: SavedAccount) async throws {
+//        print("override me!")
+//    }
+    
     // MARK: - Private methods
     
     /// A method to reset the tracker to it's initial state
@@ -116,8 +118,8 @@ class FeedTracker<Item: FeedTrackerItem>: ObservableObject {
     private func retrieveItems<Request: APIRequest>(
         with request: Request
     ) async throws -> Request.Response where Request.Response: FeedTrackerItemProviding, Request.Response.Item == Item {
-        defer { isLoading = false }
-        isLoading = true
+         defer { isLoading = false }
+         isLoading = true
         return try await APIClient().perform(request: request)
     }
     

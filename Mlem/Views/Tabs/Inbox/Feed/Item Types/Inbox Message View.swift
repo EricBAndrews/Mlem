@@ -13,11 +13,14 @@ struct InboxMessageView: View {
     
     let account: SavedAccount
     let message: APIPrivateMessageView
+    let tracker: MessagesTracker
+    
     let publishedAgo: String
     
-    init(account: SavedAccount, message: APIPrivateMessageView) {
+    init(account: SavedAccount, message: APIPrivateMessageView, tracker: MessagesTracker) {
         self.account = account
         self.message = message
+        self.tracker = tracker
         
         self.publishedAgo = getTimeIntervalFromNow(date: message.privateMessage.published)
     }
@@ -53,6 +56,15 @@ struct InboxMessageView: View {
                 .foregroundColor(.secondary)
             }
         }
+//        .task {
+//            if tracker.shouldLoadContent(after: message) {
+//                do {
+//                    try await tracker.loadNextPage(account: account)
+//                } catch let message {
+//                    print(message)
+//                }
+//            }
+//        }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

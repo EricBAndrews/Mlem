@@ -13,12 +13,14 @@ struct InboxMentionView: View {
     
     let account: SavedAccount
     let mention: APIPersonMentionView
+    let tracker: MentionsTracker
     
     let publishedAgo: String
     
-    init(account: SavedAccount, mention: APIPersonMentionView) {
+    init(account: SavedAccount, mention: APIPersonMentionView, tracker: MentionsTracker) {
         self.account = account
         self.mention = mention
+        self.tracker = tracker
         
         self.publishedAgo = getTimeIntervalFromNow(date: mention.comment.published)
     }
@@ -56,6 +58,15 @@ struct InboxMentionView: View {
                 .foregroundColor(.secondary)
             }
         }
+//        .task {
+//            if tracker.shouldLoadContent(after: mention) {
+//                do {
+//                    try await tracker.loadNextPage(account: account)
+//                } catch let message {
+//                    print(message)
+//                }
+//            }
+//        }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-class RepliesTracker: FeedTracker<APICommentReplyView>, InboxTracker {
+class RepliesTracker: FeedTracker<APICommentReplyView> {
     func loadNextPage(account: SavedAccount) async throws {
         try await perform(
             GetRepliesRequest(
